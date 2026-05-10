@@ -28,6 +28,7 @@ let labels        = {};   // { messageKey: { colorId, colorHex, note } }
 let convId        = null; // current conversation ID from URL
 let observer      = null; // MutationObserver watching for new messages
 let panelOpen     = false;
+let navFilter     = 'all'; // 'all' | 'user' | 'assistant'
 
 // ============================================================
 // INJECT STYLES
@@ -42,7 +43,8 @@ style.textContent = `
     z-index: 9999;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    align-items: center;
+    gap: 5px;
   }
   .gpt-nav-btn {
     width: 36px; height: 36px;
@@ -60,6 +62,34 @@ style.textContent = `
   .gpt-nav-btn:hover { background: #2a2a2a; transform: scale(1.08); }
   .gpt-nav-btn:active { transform: scale(0.96); }
   .gpt-nav-btn.disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+
+  /* ── NAV FILTER TOGGLE ── */
+  #gpt-nav-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+  .gpt-nf-btn {
+    width: 28px; height: 22px;
+    border-radius: 6px;
+    background: none;
+    border: none;
+    color: #555;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.12s, color 0.12s;
+    font-family: inherit;
+    letter-spacing: 0.3px;
+  }
+  .gpt-nf-btn:hover { background: #2a2a2a; color: #aaa; }
+  .gpt-nf-btn.active { background: #1f6feb; color: #fff; }
 
   /* ── PANEL TOGGLE TAB ── */
   #gpt-panel-toggle {
@@ -257,11 +287,16 @@ document.head.appendChild(style);
 function injectUI() {
   if (document.getElementById('gpt-nav')) return;
 
-  // Nav buttons
+  // Nav buttons + filter toggle
   const nav = document.createElement('div');
   nav.id = 'gpt-nav';
   nav.innerHTML = `
     <button class="gpt-nav-btn disabled" id="gpt-nav-up" title="Previous message">↑</button>
+    <div id="gpt-nav-filter" title="Jump between: All / Your questions / ChatGPT responses">
+      <button class="gpt-nf-btn active" data-nf="all"       title="All messages">All</button>
+      <button class="gpt-nf-btn"        data-nf="user"      title="Your questions only">Me</button>
+      <button class="gpt-nf-btn"        data-nf="assistant" title="ChatGPT responses only">AI</button>
+    </div>
     <button class="gpt-nav-btn disabled" id="gpt-nav-down" title="Next message">↓</button>
   `;
   document.body.appendChild(nav);
@@ -309,8 +344,19 @@ function injectUI() {
 // ============================================================
 function bindEvents() {
   // Nav buttons
-  document.getElementById('gpt-nav-up').addEventListener('click', () => navigateTo(currentIndex - 1));
-  document.getElementById('gpt-nav-down').addEventListener('click', () => navigateTo(currentIndex + 1));
+  document.getElementById('gpt-nav-up').addEventListener('click',   () => navigatePrev());
+  document.getElementById('gpt-nav-down').addEventListener('click', () => navigateNext());
+
+  // Nav filter toggle
+  document.getElementById('gpt-nav-filter').addEventListener('click', e => {
+    const btn = e.target.closest('.gpt-nf-btn');
+    if (!btn) return;
+    document.querySelectorAll('.gpt-nf-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    navFilter    = btn.dataset.nf;
+    currentIndex = -1;
+    updateNavButtons();
+  });
 
   // Panel toggle
   document.getElementById('gpt-panel-toggle').addEventListener('click', togglePanel);
@@ -387,6 +433,13 @@ function scanMessages() {
 // ============================================================
 // NAVIGATE
 // ============================================================
+
+// Returns only the messages matching the current navFilter
+function filteredMessages() {
+  if (navFilter === 'all') return messages;
+  return messages.filter(el => getRole(el) === navFilter);
+}
+
 function navigateTo(index) {
   if (index < 0 || index >= messages.length) return;
   currentIndex = index;
@@ -395,12 +448,34 @@ function navigateTo(index) {
   highlightActiveRow();
 }
 
+function navigatePrev() {
+  const pool = filteredMessages();
+  if (pool.length === 0) return;
+  // Find last pool message before currentIndex
+  const before = pool.filter(el => messages.indexOf(el) < currentIndex);
+  const target  = before.length > 0 ? before[before.length - 1] : pool[0];
+  navigateTo(messages.indexOf(target));
+}
+
+function navigateNext() {
+  const pool = filteredMessages();
+  if (pool.length === 0) return;
+  // Find first pool message after currentIndex
+  const after  = pool.filter(el => messages.indexOf(el) > currentIndex);
+  const target  = after.length > 0 ? after[0] : pool[pool.length - 1];
+  navigateTo(messages.indexOf(target));
+}
+
 function updateNavButtons() {
   const up   = document.getElementById('gpt-nav-up');
   const down = document.getElementById('gpt-nav-down');
   if (!up || !down) return;
-  up.classList.toggle('disabled', currentIndex <= 0);
-  down.classList.toggle('disabled', currentIndex >= messages.length - 1 || messages.length === 0);
+  const pool   = filteredMessages();
+  const idxs   = pool.map(el => messages.indexOf(el));
+  const hasPrev = idxs.some(i => i < currentIndex);
+  const hasNext = idxs.some(i => i > currentIndex);
+  up.classList.toggle('disabled',   !hasPrev);
+  down.classList.toggle('disabled', !hasNext && pool.length === 0);
 }
 
 // ============================================================

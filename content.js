@@ -425,7 +425,7 @@ function getMsgKey(index) {
 // ============================================================
 function scanMessages() {
   messages = getMessages();
-  updateNavButtons();
+  updateNavButtons();            // always update — even if 0 messages
   if (panelOpen) renderPanel();
   injectLabelBadges();
 }
@@ -660,12 +660,17 @@ async function onConversationChange() {
 }
 
 // ============================================================
-// MUTATION OBSERVER — watch for new messages
+// MUTATION OBSERVER — watch for new messages + re-inject UI if removed
 // ============================================================
 function startObserver() {
   if (observer) observer.disconnect();
 
   observer = new MutationObserver(() => {
+    // Re-inject UI if React removed our elements
+    if (!document.getElementById('gpt-nav')) {
+      injectUI();
+    }
+    // Re-scan messages if count changed
     const newCount = getMessages().length;
     if (newCount !== messages.length) scanMessages();
   });
@@ -716,19 +721,22 @@ function escHtml(str) {
 // BOOT
 // ============================================================
 async function boot() {
-  injectUI();
+  injectUI();          // always inject immediately
+  startObserver();     // watch for React removing our elements
   await onConversationChange();
-  startObserver();
+  scanMessages();      // scan right away — shows buttons even with 0 messages
 
-  // Re-scan after page fully loads
-  window.addEventListener('load', () => {
-    setTimeout(scanMessages, 1000);
-  });
+  // Re-scan once page is fully settled
+  setTimeout(scanMessages, 1500);
 }
 
-// Wait for body to be ready
-if (document.body) {
-  boot();
-} else {
-  document.addEventListener('DOMContentLoaded', boot);
+// Run as early as possible — don't wait for DOMContentLoaded
+function tryBoot() {
+  if (document.body) {
+    boot();
+  } else {
+    document.addEventListener('DOMContentLoaded', boot);
+  }
 }
+
+tryBoot();

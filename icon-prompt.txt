@@ -1,0 +1,157 @@
+CHROME EXTENSION ICON — ChatGPT Bulk Delete & Folders
+======================================================
+
+CONTEXT
+-------
+This is the icon for a Chrome browser extension called "ChatGPT Bulk Delete & Folders".
+The extension helps users organize, bulk delete, and export their ChatGPT conversations.
+The icon must look professional and recognizable at very small sizes (16x16 pixels).
+
+
+CONCEPT
+-------
+A folder icon with a checkmark (✓) inside it.
+The checkmark represents "selected / done / bulk action".
+The folder represents "organization / folders".
+Together they instantly communicate: "manage and organize your chats".
+
+
+STYLE
+-----
+- Flat design, minimal, clean — no photorealism, no 3D, no shadows
+- No gradients at all — solid flat colors only
+- Rounded corners on the folder shape (border-radius feel)
+- Bold, thick lines — must be visible at 16x16 pixels
+- No text, no letters, no labels — icon only
+- Similar style to: Notion, Linear, Vercel, or modern SaaS product icons
+
+
+COLORS
+------
+Background:     #0d1117  (very dark navy / almost black)
+Folder body:    #1f6feb  (medium blue — GitHub-style blue)
+Folder tab:     #388bfd  (slightly lighter blue for the folder tab at top)
+Checkmark:      #ffffff  (pure white — bold, thick, clearly visible)
+
+Alternative color scheme (if blue feels too generic):
+Background:     #0d1117  (very dark navy)
+Folder body:    #238636  (dark green)
+Folder tab:     #2ea043  (lighter green for folder tab)
+Checkmark:      #ffffff  (pure white)
+
+
+SHAPE DETAILS
+-------------
+1. The overall icon is a SQUARE with rounded corners (like all Chrome extension icons)
+2. Inside the square: a FOLDER shape
+   - Classic folder shape: rectangle body with a small rounded tab at the top-left
+   - The folder takes up about 75% of the icon area, centered
+   - The folder tab (the small bump at the top) is on the LEFT side
+   - The folder body is a rounded rectangle
+3. Inside the folder body: a CHECKMARK (✓)
+   - The checkmark is centered inside the folder body
+   - It is BOLD and THICK — not a thin line
+   - Pure white color
+   - Takes up about 50% of the folder body area
+   - Classic checkmark shape: short left stroke going down-left, long right stroke going up-right
+
+
+SIZES REQUIRED
+--------------
+Generate at 3 sizes. Each must be saved as PNG with transparent background (or the dark bg):
+
+  icon128.png  →  128 x 128 pixels  (used in Chrome Web Store listing)
+  icon48.png   →   48 x  48 pixels  (used in Chrome extensions manager page)
+  icon16.png   →   16 x  16 pixels  (used in browser toolbar — MOST IMPORTANT)
+
+The 16px version must be EXTRA BOLD — thicker lines, simpler shape.
+At 16px, remove fine details. Keep only: dark background + folder shape + checkmark.
+
+
+WHAT TO AVOID
+-------------
+- No gradients
+- No shadows or glows
+- No text or letters
+- No thin lines (won't be visible at 16px)
+- No complex details (won't be visible at 16px)
+- No white background (must be dark — icons appear in the Chrome toolbar)
+- No rounded checkmark ends (keep it sharp and clean)
+- Do not make the folder look like a file cabinet or filing system
+- Do not add any ChatGPT logo or OpenAI branding
+
+
+AI GENERATOR PROMPTS
+--------------------
+Use one of these prompts depending on which tool you use:
+
+
+[ DALL-E / ChatGPT ]
+---------------------
+"Flat minimal Chrome browser extension icon, 128x128 pixels, dark navy background (#0d1117),
+a simple blue folder shape (#1f6feb) with a small rounded tab on the top-left,
+inside the folder a bold white checkmark (✓), thick stroke, centered.
+Flat design, no gradients, no shadows, no text, no 3D, solid colors only.
+Clean, modern, professional SaaS icon style."
+
+
+[ Midjourney ]
+--------------
+flat minimal app icon, dark navy background, blue folder with white checkmark inside,
+bold thick lines, no gradients, no shadows, no text, solid flat colors,
+chrome extension icon style, 1:1 ratio, professional, clean, modern --no gradients shadows text 3d --ar 1:1 --style raw
+
+
+[ Stable Diffusion ]
+---------------------
+flat vector icon, chrome extension, dark background, simple blue folder shape,
+white bold checkmark inside folder, minimal flat design, no gradient, no shadow,
+no text, solid colors, professional app icon, clean modern design
+
+
+[ Adobe Firefly / Canva AI ]
+-----------------------------
+"A flat, minimal icon for a Chrome extension. Dark navy square background.
+A blue folder shape in the center with a bold white checkmark (✓) inside.
+Clean flat design. No gradients. No shadows. No text. Professional and simple."
+
+
+MANUAL CREATION ALTERNATIVE (if AI result is not good)
+-------------------------------------------------------
+Use one of these free tools to create it manually:
+
+1. Canva (canva.com)
+   - New design → Custom size → 128x128
+   - Add a rounded square shape → fill #0d1117
+   - Add a folder icon from Canva elements → recolor to #1f6feb
+   - Add a checkmark icon → recolor to white → resize to fit inside folder
+   - Download as PNG
+   - Resize copies to 48x48 and 16x16
+
+2. Figma (figma.com) — free
+   - New frame → 128x128
+   - Draw folder shape with pen tool or use a folder icon from Iconify plugin
+   - Overlay a checkmark shape in white
+   - Export as PNG at 1x, then scale for other sizes
+
+3. Icons8 (icons8.com)
+   - Search "folder checkmark"
+   - Download in dark theme
+   - Recolor background to #0d1117
+
+4. Flaticon (flaticon.com)
+   - Search "folder check"
+   - Edit colors online
+   - Download as PNG at 128px
+
+
+FINAL CHECK BEFORE USING
+------------------------
+Before using the icon, verify:
+[ ] Looks clear and recognizable at 16x16 pixels
+[ ] Background is dark (not white)
+[ ] Checkmark is clearly visible inside the folder
+[ ] No text or letters in the icon
+[ ] Saved as PNG (not JPG)
+[ ] All 3 sizes exist: icon16.png, icon48.png, icon128.png
+[ ] Files are placed inside the icons/ folder of the extension

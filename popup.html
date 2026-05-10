@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChatGPT Bulk Delete & Folders</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <div class="popup-wrap">
+
+    <!-- ── LOADING OVERLAY ── -->
+    <div class="loading-overlay visible" id="loadingOverlay">
+      <div class="spinner"></div>
+      <div class="loading-text" id="loadingText">Loading your conversations…</div>
+    </div>
+
+    <!-- ── ERROR STATE (not on chatgpt.com / not logged in) ── -->
+    <div class="error-state" id="errorState">
+      <div class="error-icon" id="errorIcon">🔒</div>
+      <div class="error-title" id="errorTitle">Not logged in</div>
+      <div class="error-desc" id="errorDesc">Please open chatgpt.com and log in, then click the extension again.</div>
+    </div>
+
+    <!-- ── MAIN UI ── -->
+    <div id="mainUI" style="display:none; flex-direction:column; height:100%;">
+
+      <!-- HEADER -->
+      <div class="header">
+        <div class="header-left">
+          <div class="header-dot"></div>
+          <div class="header-title">ChatGPT Bulk Delete & Folders</div>
+        </div>
+        <div class="header-count" id="headerCount">0 conversations</div>
+      </div>
+
+      <!-- SEARCH -->
+      <div class="search-wrap">
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input
+            class="search-input"
+            id="searchInput"
+            type="text"
+            placeholder="Search conversations…"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button class="search-clear" id="searchClear" title="Clear search">✕</button>
+        </div>
+      </div>
+
+      <!-- FILTER ROW -->
+      <div class="filter-row">
+        <select class="filter-select" id="filterDate" title="Filter by date">
+          <option value="">All dates</option>
+          <option value="today">Today</option>
+          <option value="week">This week</option>
+          <option value="month">This month</option>
+          <option value="older">Older than 30 days</option>
+        </select>
+
+        <select class="filter-select" id="filterModel" title="Filter by model">
+          <option value="">All models</option>
+          <option value="gpt-4o">GPT-4o</option>
+          <option value="gpt-4">GPT-4</option>
+          <option value="gpt-3.5">GPT-3.5</option>
+          <option value="o1">o1</option>
+        </select>
+
+        <select class="filter-select" id="sortBy" title="Sort by">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="az">A → Z</option>
+          <option value="za">Z → A</option>
+        </select>
+
+        <button class="filter-clear" id="filterClear">Clear filters</button>
+      </div>
+
+      <!-- ACTION BAR (visible when items are selected) -->
+      <div class="action-bar" id="actionBar">
+        <span class="action-bar-label" id="actionLabel">0 selected</span>
+
+        <button class="btn btn-secondary btn-sm" id="btnSelectAll">Select all</button>
+        <button class="btn btn-secondary btn-sm" id="btnSelectNone">Deselect</button>
+
+        <div style="position:relative;">
+          <button class="btn btn-secondary btn-sm" id="btnExport">↓ Export</button>
+          <div class="export-menu" id="exportMenu" style="
+            display:none; position:absolute; bottom:calc(100% + 4px); right:0;
+            background:var(--bg-elevated); border:1px solid var(--border);
+            border-radius:var(--radius-md); overflow:hidden; min-width:140px;
+            box-shadow:0 8px 24px rgba(0,0,0,0.5); z-index:50;
+          ">
+            <button class="export-opt" data-fmt="md">Markdown (.md)</button>
+            <button class="export-opt" data-fmt="txt">Plain Text (.txt)</button>
+            <button class="export-opt" data-fmt="json">JSON (.json)</button>
+            <button class="export-opt" data-fmt="zip">Bulk ZIP</button>
+          </div>
+        </div>
+
+        <button class="btn btn-danger btn-sm" id="btnDeleteSelected">🗑 Delete</button>
+      </div>
+
+      <!-- PROGRESS BAR -->
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-label" id="progressLabel">Deleting…</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <!-- SELECT ALL ROW (sticky top of list) -->
+      <div style="
+        display:flex; align-items:center; gap:10px; padding:7px 12px;
+        border-bottom:1px solid var(--border-muted);
+        background:var(--bg-surface); flex-shrink:0;
+      ">
+        <input type="checkbox" id="masterCheckbox" title="Select all"/>
+        <span style="font-size:11px; color:var(--text-muted); flex:1;">Select all visible</span>
+
+        <div style="display:flex; gap:5px;">
+          <button class="btn btn-ghost btn-sm" id="btnSmartSelect" title="Smart select">
+            ⚡ Smart select
+          </button>
+          <button class="btn btn-danger btn-sm" id="btnDeleteAll" title="Delete ALL conversations">
+            Delete all
+          </button>
+        </div>
+      </div>
+
+      <!-- SMART SELECT PANEL (hidden by default) -->
+      <div id="smartPanel" style="
+        display:none; padding:10px 12px; gap:6px; flex-wrap:wrap;
+        border-bottom:1px solid var(--border-muted); background:var(--bg-surface);
+        flex-shrink:0;
+      ">
+        <button class="btn btn-secondary btn-sm" data-smart="empty">Empty chats</button>
+        <button class="btn btn-secondary btn-sm" data-smart="short">Short (&lt;3 msgs)</button>
+        <button class="btn btn-secondary btn-sm" data-smart="before30">Older than 30 days</button>
+        <button class="btn btn-secondary btn-sm" data-smart="before90">Older than 90 days</button>
+        <button class="btn btn-secondary btn-sm" data-smart="invert">Invert selection</button>
+      </div>
+
+      <!-- CONVERSATION LIST -->
+      <div class="conv-list" id="convList">
+
+        <!-- EMPTY STATE -->
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">💬</div>
+          <div class="empty-title">No conversations found</div>
+          <div class="empty-desc">Try adjusting your search or filters.</div>
+        </div>
+
+        <!-- Conversation rows injected here by popup.js -->
+
+      </div>
+
+      <!-- FOOTER -->
+      <div class="footer">
+        <div class="footer-left" id="footerCount">0 conversations</div>
+        <a
+          class="bmc-btn"
+          href="https://buymeacoffee.com/chatgptmanager"
+          target="_blank"
+          title="Support this free extension"
+        >☕ Buy me a coffee</a>
+      </div>
+
+    </div><!-- /mainUI -->
+
+    <!-- ── TOAST AREA ── -->
+    <div class="toast-area" id="toastArea"></div>
+
+    <!-- ── CONFIRMATION MODAL ── -->
+    <div class="modal-backdrop" id="modalBackdrop">
+      <div class="modal">
+        <div class="modal-title" id="modalTitle">Are you sure?</div>
+        <div class="modal-body"  id="modalBody">This action cannot be undone.</div>
+        <input
+          class="modal-input"
+          id="modalInput"
+          type="text"
+          placeholder=""
+          style="display:none;"
+        />
+        <div class="modal-actions">
+          <button class="btn btn-secondary" id="modalCancel">Cancel</button>
+          <button class="btn btn-danger"    id="modalConfirm">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /popup-wrap -->
+
+  <style>
+    /* Export menu options */
+    .export-opt {
+      display: block; width: 100%; text-align: left;
+      padding: 8px 12px; background: none; border: none;
+      color: var(--text-secondary); font-size: 12px; font-family: inherit;
+      cursor: pointer;
+    }
+    .export-opt:hover { background: var(--bg-overlay); color: var(--text-primary); }
+
+    /* Make main UI fill height */
+    #mainUI { display: none; flex-direction: column; height: 100%; }
+    #mainUI.visible { display: flex !important; }
+  </style>
+
+  <script src="popup.js"></script>
+</body>
+</html>

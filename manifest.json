@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "ChatGPT Bulk Delete & Folders",
+  "name": "GPT Organizer",
   "version": "1.0.0",
-  "description": "Bulk delete, organize into folders, search, and export your ChatGPT conversations. 100% free. No data collected.",
+  "description": "Bulk delete, label, archive & export ChatGPT conversations. Folders, message navigator, notes & more. Free. No data collected.",
   "minimum_chrome_version": "114",
 
-  "permissions": ["storage", "cookies", "scripting"],
+  "permissions": ["storage", "scripting"],
   "host_permissions": ["https://chatgpt.com/*"],
 
   "background": {
@@ -14,12 +14,18 @@
 
   "action": {
     "default_popup": "popup.html",
-    "default_title": "ChatGPT Bulk Delete & Folders",
-    "default_icon": "icons/icone.png"
+    "default_title": "GPT Organizer",
+    "default_icon": {
+      "16":  "icons/16.png",
+      "48":  "icons/48.png",
+      "128": "icons/128.png"
+    }
   },
 
   "icons": {
-    "128": "icons/icone.png"
+    "16":  "icons/16.png",
+    "48":  "icons/48.png",
+    "128": "icons/128.png"
   },
 
   "content_scripts": [
